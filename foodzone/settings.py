@@ -12,7 +12,6 @@ USE_TZ = True
 # Load environment variables from .env file
 load_dotenv(dotenv_path=BASE_DIR / ".env")
 load_dotenv(dotenv_path=BASE_DIR / "foodzone"/".env")
-
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fallback-secret-key")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
@@ -135,9 +134,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-ALLOWED_HOSTS=['*']
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
