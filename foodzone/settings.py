@@ -11,6 +11,7 @@ USE_TZ = True
 
 # Load environment variables from .env file
 load_dotenv(dotenv_path=BASE_DIR / ".env")
+load_dotenv(dotenv_path=BASE_DIR / "foodzone"/".env")
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fallback-secret-key")
 DEBUG = os.getenv("DEBUG", "False") == "True"
@@ -94,7 +95,8 @@ TEMPLATES = [
 
 
 WSGI_APPLICATION = 'foodzone.wsgi.application'
-
+#local db
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -105,6 +107,24 @@ DATABASES = {
         'PORT': os.getenv("DATABASE_PORT"),
     }
 }
+'''
+# render postgresql database live
+
+import os
+import dj_database_url
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Ensure DATABASE_URL is set
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
+else:
+    raise ValueError("DATABASE_URL is not set in the environment variables")
+
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -115,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-
+ALLOWED_HOSTS=['*']
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
@@ -128,8 +148,7 @@ PAYPAL_MODE = raw_paypal_mode.split('#')[0].strip()
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
-print("PAYPAL_MODE:", os.getenv("PAYPAL_MODE"))
-
+#print("PAYPAL_MODE:", os.getenv("PAYPAL_MODE"))
 # # settings.py (temporarily)
 # PAYPAL_MODE = 'sandbox'
 # PAYPAL_CLIENT_ID = 'AZvVzdXPjjQABG_O7tKAB37AZjJlqa9CSGuckPqZHnrYvJ8rJZmZjbW5C7gbRw1yyx5hp7NdMJWJD-An'
