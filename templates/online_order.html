@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Order Online</h2>
+    <p>Place your order for a dish. You can specify quantity and payment method (if needed).</p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <!-- If you want to attach a dish, add a hidden input or something similar -->
+        <input type="hidden" name="dish_id" value="{{ dish_id|default_if_none:'' }}">
+        <!-- Payment method example -->
+        <!--
+        <label for="payment_method">Payment Method:</label>
+        <select name="payment_method" class="form-control mb-3">
+            <option value="paypal">PayPal</option>
+            <option value="cod">Cash on Delivery</option>
+        </select>
+        -->
+        <button type="submit" class="btn btn-primary">Order Now</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header mb-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Booking Success</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'index' %}">Home</a>
+                <a href="#">Booking Success</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container mt-5 text-center">
+    <h2>Table Booked Successfully!</h2>
+    <p>We’ll have your table ready at the specified time. See you soon!</p>
+    <a href="{% url 'profile' %}" class="btn btn-primary">View Your Profile</a>
+</div>
+{% endblock %}

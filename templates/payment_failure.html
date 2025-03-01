@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+ <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h2>Payment Failed</h2>
+                    </div>
+                    <div class="col-12">
+                        <a href="">Home</a>
+                        <a href="">Payment Failed</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container mt-5 text-center">
+    <h2>Payment Failed</h2>
+    <p>Something went wrong. Please try again or contact support.</p>
+    <a href="{% url 'view_cart' %}" class="btn btn-primary">Back to Cart</a>
+</div>
+{% endblock %}

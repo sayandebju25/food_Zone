@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Page Header Start -->
+<div class="page-header mb-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{ dish.name }}</h2>
+            </div>
+            <div class="col-12">
+                <a href="/dishes/?q={{ dish.category.id }}">{{ dish.category.name }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Dish Detail Start -->
+<div class="food mt-0">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 mx-auto">
+                <div class="food-item">
+                    <!-- Dish Image -->
+                    <a href="{{ dish.image.url }}" target="_blank">
+                        <img src="{{ dish.image.url }}" style="height: 300px; width: 100%;" alt="Dish Image">
+                    </a>
+
+                    <!-- Dish Name & Details -->
+                    <h2 class="my-3">{{ dish.name }}</h2>
+                    <p>{{ dish.details }}</p>
+
+                    <!-- Pricing -->
+                    <h4 class="menu-text" style="font-weight: normal;">
+                        {% if dish.price != dish.discounted_price %}
+                            <strong><del>&dollar;{{ dish.price }}</del></strong>
+                        {% endif %}
+                        <strong>&dollar;{{ dish.discounted_price }}</strong>
+                    </h4>
+
+                    <!-- Ingredients (using JS split) -->
+                    <p>
+                        <script>
+                            var ing = '{{ dish.ingredients }}'.split(',');
+                            for (var i = 0; i < ing.length; i++) {
+                                document.write("<span class='btn btn-sm mr-1 mb-1 btn-outline-success'>" + ing[i] + "</span>");
+                            }
+                        </script>
+                    </p>
+
+                    <!-- Availability & Order Logic -->
+                    {% if dish.is_available %}
+                        {% if user.is_superuser or user.is_staff %}
+                            <!-- Staff/admin can see something else if desired -->
+                            <p class="text-info">Staff/Admin view. No ordering needed.</p>
+                        {% elif user.is_authenticated %}
+                            <!-- Regular logged-in user sees an order form (example) -->
+                            <form method="POST" action="{% url 'start_online_order' %}">
+                                {% csrf_token %}
+                                {{ online_order_form.as_p }}
+                                <!-- Payment Method Selection -->
+                                <label for="payment_method">Payment Method:</label>
+                                <select name="payment_method" id="payment_method" class="form-control mb-3">
+                                    <option value="paypal">PayPal</option>
+                                    <option value="cod">Cash on Delivery</option>
+                                </select>
+                                <!-- Hidden field to reference the current dish -->
+                                <input type="hidden" name="dish_id" value="{{ dish.id }}">
+
+                                <button type="submit" class="btn btn-primary">Order Now</button>
+                            </form>
+                        {% else %}
+                            <!-- Non-logged-in user -->
+                            <p><a href="{% url 'login' %}">Login to Buy</a></p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-danger">Not Available for delivery!</p>
+                    {% endif %}
+
+                    <!-- Link back to category dishes -->
+                    <a href="/dishes/?q={{ dish.category.id }}">More Dishes under {{ dish.category.name }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Dish Detail End -->
+
+<!-- Book Table Section Start -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto text-center">
+            <h2>Book a Table</h2>
+            <p>Reserve a table in our restaurant with your preferred time, guests, and optional order quantity.</p>
+
+            {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'book_table' %}">
+                {% csrf_token %}
+                {{ book_table_form.as_p }}
+                <!-- Example fields you might include:
+                     - date/time
+                     - number_of_guests
+                     - optional initial order quantity
+                -->
+                <button type="submit" class="btn btn-success">Book Now</button>
+            </form>
+            {% else %}
+                <p>Please <a href="{% url 'login' %}">login</a> to book a table.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<!-- Book Table Section End -->
+{% endblock %}

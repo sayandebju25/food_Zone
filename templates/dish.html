@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Page Header Start -->
+<div class="page-header mb-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{ dish.name }}</h2>
+            </div>
+            <div class="col-12">
+                <a href="/dishes/?q={{ dish.category.id }}">{{ dish.category.name }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page Header End -->
+<!-- Info Prompt about PayPal -->
+<div class="alert alert-info text-center">
+  We use PayPal, which does not support INR. Prices are displayed in USD, 
+  but the approximate INR amount is shown for reference only.
+</div>
+<!-- Food Start -->
+<div class="food mt-0">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 mx-auto">
+                <div class="food-item" style="background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); text-align: center; margin-bottom: 20px;">
+                    
+                    <a href="{{ dish.image.url }}" target="_blank">
+                        <img src="{{ dish.image.url }}" style="height: 300px; width: 100%; border-radius: 10px; object-fit: cover;">
+                    </a>
+
+                    <h2 style="font-size: 28px; color: #333; font-weight: bold; margin-top: 15px;">{{ dish.name }}</h2>
+                    
+                    <p style="color: #555; font-size: 16px;">{{ dish.details }}</p>
+
+                    <h4 style="font-size: 22px; font-weight: bold; color: #ff6600; margin-bottom: 10px;">
+                        {% if dish.price != dish.discounted_price %}
+                            <strong>
+                                <del style="color: #888;">
+                                    ${{ dish.price }}
+                                    <span class="inr-amount" data-usd="{{ dish.price }}"></span>
+                                </del>
+                            </strong>
+                        {% endif %}
+                        <strong>
+                            ${{ dish.discounted_price }}
+                            <span class="inr-amount" data-usd="{{ dish.discounted_price }}"></span>
+                        </strong>
+                    </h4>
+
+                    {% if dish.is_available %}
+                        {% if user.is_superuser or user.is_staff %}
+                        {% elif user.is_active %}
+                            {% if error_message %}
+                                <p style="color: red; font-weight: bold;">{{ error_message }}</p>
+                            {% endif %}
+                            <form method="POST" style="text-align: left;" onsubmit="return validateOrderForm(event)">
+                                {% csrf_token %}
+
+                                <!-- Quantity Input -->
+                                <div style="margin-bottom: 10px;">
+                                    <label for="quantity" style="font-size: 16px; font-weight: bold;">Quantity:</label>
+                                    <input type="number" name="quantity" id="quantity" min="1" value="1" style="width: 60px; text-align: center; padding: 5px; border: 1px solid #ccc; border-radius: 5px;">
+                                </div>
+
+                                <!-- Delivery Address -->
+                                {% comment %} <div style="margin-bottom: 10px;">
+                                    <label for="delivery_address" style="font-size: 16px; font-weight: bold;">Delivery address:</label>
+                                    <textarea name="delivery_address" id="delivery_address" placeholder="Enter delivery address" style="width: 100%; min-height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;"></textarea>
+                                </div> {% endcomment %}
+
+                                <!-- Buttons -->
+                                <div style="display: flex; justify-content: space-between; gap: 10px;">
+                                    <button type="submit" name="add_to_cart" style="background: #ff9800; color: white; font-size: 16px; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center;">
+                                        🛒 ADD TO CART
+                                    </button>
+                                    <button type="submit" name="order_now" style="background: #ff5722; color: white; font-size: 16px; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center;">
+                                        ⚡ BUY NOW
+                                    </button>
+                                </div>
+                            </form>
+                        {% else %}
+                            <p><a href="{% url 'login' %}" style="color: #007bff; font-weight: bold;">Login to Buy</a></p>
+                        {% endif %}
+                    {% else %}
+                        <p style="color: red; font-size: 16px; font-weight: bold;">Not Available for delivery!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Food End -->
+
+<!-- JavaScript Validation -->
+<script>
+    const exchangeRate = 82.47; // Update as needed
+    document.querySelectorAll('.inr-amount').forEach(el => {
+        let usdValue = parseFloat(el.getAttribute('data-usd')) || 0;
+        let inrValue = (usdValue * exchangeRate).toFixed(2);
+        el.textContent = ` (INR ₹ ${inrValue})`;
+    });
+    function validateOrderForm(event) {
+        var address = document.getElementById("delivery_address").value.trim();
+        if (address === "") {
+            alert("Please enter a delivery address before placing an order.");
+            return false; // Prevent form submission
+        }
+        return true;
+    }
+</script>
+
+{% endblock %}

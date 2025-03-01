@@ -1,0 +1,87 @@
+{% extends "base.html" %} 
+{% block content %}
+<!-- Page Header Start -->
+<div class="page-header mb-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Your Profile</h2>
+            </div>
+            <div class="col-12">
+                <a href="/">Home</a>
+                <a href="#">Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page Header End -->
+
+<div class="container mt-5">
+    <!-- Orders Section -->
+    <h3>Orders</h3>
+    {% if orders %}
+        <ul>
+            {% for order in orders %}
+                <li>
+                    <strong>Order #{{ order.id }}</strong> | 
+                    Dish: {{ order.dish.name }} | 
+                    Quantity: {{ order.quantity }} | 
+                    Status: {{ order.status }}
+                    
+                    {% if order.status == "Confirmed (COD)" %}
+                        <br>
+                        <span class="delivery-info">
+                            🚚 <strong>Delivery partner assigned. Will be delivered soon!</strong><br>
+                            💰 <strong>Keep ready amount:</strong> ${{ order.total_amount }}
+                        </span>
+                        <a href="{% url 'download_invoice' order.id %}" class="btn btn-sm btn-info">Download Invoice (PDF)</a>
+                    {% elif order.status == "Confirmed (PayPal)" %}
+                        <br>
+                        <span class="delivery-info">
+                            🚚 <strong>Delivery partner assigned. Will be delivered soon!</strong><br>
+                            💳 <strong>Paid via PayPal:</strong> ${{ order.total_amount}}
+                        </span>
+                        <a href="{% url 'download_invoice' order.id %}" class="btn btn-sm btn-info">Download Invoice (PDF)</a>
+                    {% endif %}
+
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if orders_count > 3 and request.GET.show_orders != "all" %}
+            <a href="?show_orders=all">See All Orders</a>
+        {% elif request.GET.show_orders == "all" %}
+            <a href="?">Show Less</a>
+        {% endif %}
+    {% else %}
+        <p>No orders yet.</p>
+    {% endif %}
+
+    <!-- Bookings Section -->
+    <h3>Bookings</h3>
+    {% if bookings %}
+        <ul>
+            {% for booking in bookings %}
+                <li>
+                    Booking #{{ booking.id }} | Date: {{ booking.date }} |
+                    Guests: {{ booking.guests }}
+
+                </li>
+            {% endfor %}
+        </ul>
+        
+        {% if bookings_count > 3 and request.GET.show_bookings != "all" %}
+            <a href="?show_bookings=all">See All Bookings</a>
+        {% elif request.GET.show_bookings == "all" %}
+            <a href="?">Show Less</a>
+        {% endif %}
+    {% else %}
+        <p>No table bookings yet.</p>
+    {% endif %}
+
+    <!-- Update Profile Button -->
+    <div class="mt-4">
+        <a href="{% url 'update_profile' %}" class="btn btn-primary">Update Profile</a>
+    </div>
+</div>
+{% endblock %}

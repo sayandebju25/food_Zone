@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+
+{% block content %}
+<!-- Page Header Start -->
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Register</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'index' %}">Home</a>
+                <a href="{% url 'register' %}">Register</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page Header End -->
+
+<div class="container" style="max-width: 400px; margin-top: 50px;">
+    <h2 class="text-center mb-4">Register</h2>
+    
+    <form method="POST" novalidate>
+        {% csrf_token %}
+        
+        <!-- Username Field -->
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}" class="mb-1">Username : </label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="text-danger">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Email Field -->
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}" class="mb-1">Email : </label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="text-danger">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Password1 Field -->
+        <div class="form-group">
+            <label for="{{ form.password1.id_for_label }}" class="mb-1">Password : </label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+                <div class="text-danger">{{ form.password1.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Password2 Field -->
+        <div class="form-group">
+            <label for="{{ form.password2.id_for_label }}" class="mb-1">Confirm Password : </label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+                <div class="text-danger">{{ form.password2.errors }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+    </form>
+
+    <hr>
+    <div class="text-center">
+        <p>Or register with Google:</p>
+        <a class="btn btn-danger btn-block" href="{% provider_login_url 'google' %}">
+            <i class="fab fa-google mr-1"></i> Register with Google
+        </a>
+    </div>
+
+    <div class="text-center mt-3">
+        <p>Already have an account?
+            <a href="{% url 'account_login' %}">Login</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Invoice #{{ order.id }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    .invoice-header {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .info {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-header">Invoice for Order #{{ order.id }}</div>
+
+  <div class="info">
+    <strong>Order Date:</strong> {{ order.created_at|date:"Y-m-d H:i" }}
+  </div>
+  <div class="info">
+    <strong>Dish:</strong> {{ order.dish.name }}
+  </div>
+  <div class="info">
+    <strong>Quantity:</strong> {{ order.quantity }}
+  </div>
+  <div class="info">
+    <strong>Total Amount:</strong> ₹{{ order.total_amount }}
+  </div>
+  <div class="info">
+    <strong>Status:</strong> {{ order.status }}
+  </div>
+
+  <div class="info">
+    <strong>Phone Number:</strong>
+    {{ order.phone_number|default:"No phone number" }}
+  </div>
+  <div class="info">
+    <strong>Delivery Address:</strong>
+    {{ order.delivery_address|default:"No address provided" }}
+  </div>
+
+  <hr>
+  <p>Thank you for ordering from FoodZone!</p>
+</body>
+</html>

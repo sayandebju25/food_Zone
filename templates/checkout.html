@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header mb-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Checkout</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'index' %}">Home</a>
+                <a href="#">Checkout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5" style="max-width: 600px;">
+     {% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+    <h3 style="font-weight: bold; margin-bottom: 1rem;">Checkout</h3>
+    <p>Please select your payment method and enter delivery address:</p>
+
+    <form method="POST" style="background: #ffffff; padding: 20px; border-radius: 6px;">
+        {% csrf_token %}
+
+        <!-- Payment Method Field -->
+        <div class="mb-3">
+            <label class="form-label" style="font-weight: 600;">
+                {{ form.payment_method.label }}
+            </label>
+            <div>
+                {{ form.payment_method }}
+            </div>
+            <!-- Display errors if any -->
+            {% for error in form.payment_method.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Delivery Address Field -->
+        <div class="mb-3">
+            <label class="form-label" style="font-weight: 600;">
+                {{ form.delivery_address.label }}
+            </label>
+            {{ form.delivery_address }}
+            <!-- Show help text if present -->
+            {% if form.delivery_address.help_text %}
+              <small class="form-text text-muted">{{ form.delivery_address.help_text }}</small>
+            {% endif %}
+            {% for error in form.delivery_address.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Phone Number Field -->
+        <div class="mb-3">
+            <label class="form-label" style="font-weight: 600;">
+                {{ form.phone_number.label }}
+            </label>
+            {{ form.phone_number }}
+            <!-- Show help text if present -->
+            {% if form.phone_number.help_text %}
+              <small class="form-text text-muted">{{ form.phone_number.help_text }}</small>
+            {% endif %}
+            {% for error in form.phone_number.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-success w-100" style="font-weight: 600; padding: 10px;">
+            Confirm &amp; Pay
+        </button>
+    </form>
+</div>
+{% endblock %}

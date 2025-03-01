@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="page-header mb-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Table Booking</h2>
+            </div>
+            <div class="col-12">
+                <a href="/">Home</a> / <a href="#">Table Booking</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sticky Navigation -->
+<nav class="sticky-tabs">
+    <div class="container">
+        <ul class="nav nav-pills justify-content-center">
+            <li class="nav-item"><a class="nav-link" href="#menu">Menu</a></li>
+            <li class="nav-item"><a class="nav-link" href="#book">Book Table</a></li>
+            <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
+            <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Booking Section -->
+<div id="book" class="container py-4">
+    <h2 class="section-title">Make a Reservation</h2>
+
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }} mt-3" role="alert">
+                {{ msg }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="booking-form mt-4">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="row g-3">
+                <!-- Select Date -->
+                <div class="col-md-6">
+                    <label class="form-label">Select Date</label>
+                    <select class="form-select" name="date" onchange="this.form.submit()" required>
+                        {% for friendly_str, real_date in formatted_dates %}
+                            <option value="{{ friendly_str }}" {% if friendly_str == selected_date_str %}selected{% endif %}>
+                                {{ friendly_str }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Party Size -->
+                <div class="col-md-6">
+                    <label class="form-label">Party Size</label>
+                    <select class="form-select" name="guests" required>
+                        {% for i in guest_range %}
+                            <option value="{{ i }}">{{ i }} Guest{{ i|pluralize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Meal Type -->
+                <div class="col-md-6">
+                    <label class="form-label">Meal Type</label>
+                    <div class="btn-group-vertical w-100">
+                        {% for meal in meal_choices %}
+                            <input type="radio" class="btn-check" name="meal_type" id="meal-{{ forloop.counter }}" 
+                                   value="{{ meal.0 }}" {% if meal.0 == selected_meal %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="btn btn-outline-secondary" for="meal-{{ forloop.counter }}">{{ meal.1 }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Time Slots -->
+                <div class="row mt-3">
+                    {% if time_slots %}
+                        {% for slot in time_slots %}
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-outline-success time-slot" data-slot="{{ slot.0 }}" onclick="selectTimeSlot(this)">
+                                    {{ slot.0 }}
+                                </button>
+                            </div>
+                        {% endfor %}
+                        <input type="hidden" id="selected-slot" name="slot">
+                    {% else %}
+                        <p class="text-danger">{{ custom_no_slots_message|default:"No available slots for this date or meal type." }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Book Now -->
+                <div class="col-md-12 text-center">
+                    <button type="submit" name="booking_submit" class="btn btn-success px-4 py-2 mt-3">
+                        Book Now
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Menu Section -->
+<div id="menu" class="container py-5">
+    <h2 class="section-title">Our Menu</h2>
+    <div class="row">
+        {% for food in food_items %}
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ food.image.url }}" class="card-img-top" alt="{{ item.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ food.name }}</h5>
+                        <p class="card-text">{{ food.description }}</p>
+                        <p class="text-success"><strong>₹{{ food.price }}</strong></p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Gallery Section -->
+<div id="gallery" class="container py-5">
+    <h2 class="section-title">Photo Gallery</h2>
+    <div class="row">
+        {% for image in gallery_images %}
+            <div class="col-md-3">
+                <img src="{{ image.url }}" class="img-fluid rounded" alt="Gallery Image">
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Review Section -->
+<div id="reviews" class="container py-5">
+    <h2 class="section-title">Customer Reviews</h2>
+    <div class="row">
+        {% for review in reviews %}
+            <div class="col-md-6">
+                <div class="review-card p-3 mb-3 border rounded">
+                    <h5>{{ review.user.username }}</h5>
+                    <p class="text-muted">{{ review.date_posted }}</p>
+                    <p>{{ review.content }}</p>
+                    <p class="text-warning">⭐ {{ review.rating }}/5</p>
+                </div>
+            </div>
+        {% empty %}
+            <p>No reviews yet. Be the first to leave a review!</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Smooth scrolling for navigation
+    document.querySelectorAll('.nav-link').forEach(anchor => {
+        anchor.addEventListener('click', function(event) {
+            event.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    // Highlight the chosen slot & store it in hidden input
+    function selectTimeSlot(element) {
+        document.querySelectorAll('.time-slot').forEach(btn => btn.classList.remove('selected'));
+        element.classList.add('selected');
+        document.getElementById('selected-slot').value = element.dataset.slot;
+    }
+</script>
+{% endblock %}

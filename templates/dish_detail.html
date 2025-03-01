@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<!-- Page Header Start -->
+<div class="page-header mb-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{ dish.name }}</h2>
+            </div>
+            <div class="col-12">
+                <!-- Link back to all dishes in this category -->
+                <a href="/dishes/?q={{ dish.category.id }}">{{ dish.category.name }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page Header End -->
+<!-- Info Prompt about PayPal & INR -->
+<div class="alert alert-info text-center">
+  We use PayPal, which does not support INR. Prices are displayed in USD, 
+  but the approximate INR amount is shown for reference only.
+</div>
+<!-- Dish Detail Start -->
+<div class="food mt-0">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 mx-auto">
+                <div class="food-item">
+                    <!-- Dish Image -->
+                    <a href="{{ dish.image.url }}" target="_blank">
+                        <img src="{{ dish.image.url }}" style="height: 300px; width: 100%;" alt="Dish Image">
+                    </a>
+
+                    <!-- Dish Name & Details -->
+                    <h2 class="my-3">{{ dish.name }}</h2>
+                    <p>{{ dish.details }}</p>
+
+                    <!-- Pricing with USD + INR Conversion -->
+                    <h4 class="menu-text" style="font-weight: normal;">
+                        {% if dish.price != dish.discounted_price %}
+                            <strong>
+                                <del>
+                                    ${{ dish.price }}
+                                    <!-- We'll show the INR conversion via JavaScript -->
+                                    <span class="inr-amount" data-usd="{{ dish.price }}"></span>
+                                </del>
+                            </strong>
+                        {% endif %}
+                        
+                        <strong>
+                            ${{ dish.discounted_price }}
+                            <span class="inr-amount" data-usd="{{ dish.discounted_price }}"></span>
+                        </strong>
+                    </h4>
+
+                    <!-- Ingredients (using JavaScript split) -->
+                    <p>
+                        <script>
+                            var ing = '{{ dish.ingredients }}'.split(',');
+                            for (var i = 0; i < ing.length; i++) {
+                                document.write(
+                                  "<span class='btn btn-sm mr-1 mb-1 btn-outline-success'>" 
+                                  + ing[i] 
+                                  + "</span>"
+                                );
+                            }
+                        </script>
+                    </p>
+
+                    <!-- Availability & Ordering Logic -->
+                    {% if dish.is_available %}
+                        {% if user.is_superuser or user.is_staff %}
+                            <p class="text-info">Staff/Admin: No ordering needed.</p>
+                        {% elif user.is_authenticated %}
+                            <div class="d-flex justify-content-start align-items-center" style="gap: 1rem;">
+                                <!-- ORDER NOW form -->
+                                <form method="POST" style="display: inline;">
+                                    {% csrf_token %}
+                                    {{ form.as_p }}
+                                    <button type="submit" class="btn btn-primary">Order Now</button>
+                                </form>
+
+                                <!-- ADD TO CART form -->
+                                <form method="POST" action="{% url 'add_to_cart' dish_id=dish.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <label for="quantity" class="sr-only">Quantity:</label>
+                                    <input type="number" name="quantity" min="1" value="1" class="form-control d-inline-block w-auto mr-2">
+                                    <button type="submit" class="btn btn-secondary">Add to Cart</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <p><a href="{% url 'login' %}">Login to Buy</a></p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-danger">Not Available for delivery!</p>
+                    {% endif %}
+
+                    <!-- Link to more dishes in this category -->
+                    <a href="/dishes/?q={{ dish.category.id }}">
+                        More Dishes under {{ dish.category.name }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Dish Detail End -->
+
+<!-- JavaScript for USD -> INR Conversion -->
+<script>
+    // Example rate: 1 USD ≈ 82.47 INR (update as needed)
+    const exchangeRate = 82.47;
+
+    document.querySelectorAll('.inr-amount').forEach(function(el) {
+        const usdValue = parseFloat(el.getAttribute('data-usd')) || 0;
+        const inrValue = (usdValue * exchangeRate).toFixed(2);
+        el.textContent = ` (INR ₹${inrValue})`;
+    });
+</script>
+
+{% endblock %}
